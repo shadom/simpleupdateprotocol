@@ -64,7 +64,7 @@ and new updates would typically appear 10 times as fast.
 """
 
 import calendar
-import cjson
+import simplejson
 import datetime
 import hashlib
 
@@ -169,7 +169,7 @@ def make_sup_json(updated, since, period, updates):
         [generate_sup_id(u.username), str(u.updated)]
         for u in updates]    
 
-    return cjson.encode({
+    return simplejson.dumps({
         "updated_time": rfc_3339_time(updated),
         "since_time": rfc_3339_time(since),
         "period": period,
