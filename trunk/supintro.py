@@ -38,12 +38,22 @@ in a tiny fraction of the updates, however intermediate services such as
 Gnip or others can easily consume a SUP feed and convert it into a
 subscribe/push model using XMPP or HTTP callbacks.
 
+See the FAQ at http://code.google.com/p/simpleupdateprotocol/wiki/faq
+
+
 Sites wishing to produce a SUP feed must do two things:
- - Add a special "link" tag to their SUP enabled Atom or RSS feeds. This
-   "link" tag includes the feed's SUP-ID and the URL of the appropriate
+ - Add a special HTTP header or "link" tag to their SUP enabled Atom or RSS
+   feeds. This reveals the feed's SUP-ID and the URL of the appropriate
    SUP feed.
  - Generate a SUP feed which lists the SUP-IDs of all recently updated
-   feeds.
+   feeds, or send updates to a shared SUP feed such as
+   http://friendfeed.com/api/public-sup.
+
+A SUP validator is available at http://friendfeed.com/api/sup-validator
+
+The feed tester at http://friendfeed.com/api/feedtest can be used to
+verify that the SUP HTTP header or link tag is properly included in an
+RSS or Atom feed.
 
 Feed consumers can add SUP support by:
  - Storing the SUP-IDs of the Atom/RSS feeds they consume.
@@ -106,30 +116,27 @@ def generate_sup_id(username):
     return hashlib.md5(username).hexdigest()[:8]
 
 
-def make_sup_link(username, for_rss=False):
+def make_sup_http_header(username):
+    """ Feeds can announce their SUP-ID by setting the "X-SUP-ID"
+    HTTP header, or by including a special "link" tag, or both.
+    The HTTP header is preferable since it works for all content
+    types, but feed consumers should watch for both the link tag
+    and the HTTP header.
     """
-    Atom/RSS feeds that support SUP must include a link tag to announce
-    the SUP-ID and URL of the SUP feed.
+    sup_feed = "http://mysite.com/sup.json"  # your site
+    sup_id = generate_sup_id(username)
+    return "X-SUP-ID: %s#%s" % (sup_feed, sup_id)
 
-    The "rel" on this link tag is "http://api.friendfeed.com/2008/03#sup"
+
+def make_sup_link(username, for_rss=False):
+    """ Feeds can announce their SUP-ID by setting the "X-SUP-ID"
+    HTTP header, or by including a special "link" tag, or both.
+    The HTTP header is preferable since it works for all content
+    types, but feed consumers should watch for both the link tag
+    and the HTTP header.
+
+    The "rel" on the link tag is "http://api.friendfeed.com/2008/03#sup"
     RSS feeds need to include the Atom namespace on the link tag.
-
-    Ideally, feeds that include the SUP tag should also set the HTTP 
-    "Vary" header to include "X-SUP-UID" (e.g "Vary: X-SUP-UID").
-    Clients refreshing the feed in response a SUP entry should then
-    include the HTTP header "X-SUP-UID: <update_id>" where "<update_id>"
-    is the update_id from the SUP entry that triggered the feed fetch.
-    This is to avoid the problem of an intermediate HTTP cache serving
-    an older version of the feed which does not include the latest update.
-    If the server does not include the "Vary" header, then clients can
-    instead use the HTTP header "Cache-Control: max-age=0" when refreshing
-    the feed.
-
-    Side Note: SUP can be extended to work for all HTTP GET requests,
-    regardless of content, by putting the SUP feed url and SUP-ID in an
-    HTTP header, e.g. "X-SUP-ID: http://mysite.com/sup.json#12345"
-    Ideally, SUP consumers should watch for both the SUP link tag and
-    the X-SUP-ID HTTP header.
     """
     sup_feed = "http://mysite.com/sup.json"  # your site
     sup_id = generate_sup_id(username)
@@ -157,8 +164,15 @@ def make_sup_json(updated, since, period, updates):
     time works well and is useful when debugging, but in principle anything
     can be used, and consumers should not attempt to parse or interpret it.
 
-    SUP consumers should fetch SUP feeds slightly faster than every "period"
-    seconds.
+    "period" lets feed consumers know how fast to poll the SUP feed. The
+    default period should probably be about 60 seconds. SUP consumers should
+    fetch SUP feeds slightly faster than every "period" seconds to avoid
+    missing updates.
+
+    "updated_time" and "since_time" are used to announce what time time
+    period is convered by the current list of updates. This window must
+    be at least "period" seconds long, but ideally it should be slightly
+    longer in order to provide some overlap.
 
     If a SUP publishers supports multiple time periods, SUP feeds should
     include "available_periods", which is a dictionary from time periods
@@ -185,7 +199,8 @@ def generate_sup_update(database, period):
     set_header("Expires", update_time + datetime.timedelta(seconds=period))
     """
     update_time = datetime.datetime.utcnow()
-    since = update_time - datetime.timedelta(seconds=period)
+    since = update_time - datetime.timedelta(seconds=period) - \
+            datetime.timedelta(seconds=10)  # include a little overlap
     updates = database.query(
         "SELECT username, updated FROM users WHERE updated >= %s",
         since)
@@ -207,6 +222,9 @@ class DummyDb(object):
 
 def test():
     db = DummyDb()
+    print "HTTP header for Ana's feed:"
+    print "  ", make_sup_http_header("ana")
+    print
     print "Link tag for Ana's Atom feed:"
     print "  ", make_sup_link("ana")
     print
@@ -214,10 +232,13 @@ def test():
     print "  ", make_sup_link("ana", for_rss=True)
     print
     print "SUP feed:"
-    print "  ", generate_sup_update(db, 120)
+    print "  ", generate_sup_update(db, 60)
 
 
     """ Output is:
+    HTTP header for Ana's feed:
+       X-SUP-ID: http://mysite.com/sup.json#276b6c46
+
     Link tag for Ana's Atom feed:
        <link rel="http://api.friendfeed.com/2008/03#sup" href="http://mysite.com/sup.json#276b6c46" type="application/json"/>
 
@@ -225,7 +246,7 @@ def test():
        <link xmlns="http://www.w3.org/2005/Atom" rel="http://api.friendfeed.com/2008/03#sup" href="http://mysite.com/sup.json#276b6c46" type="application/json"/>
 
     SUP feed:
-       {"since_time": "2008-08-12T01:44:49Z", "period": 120, "updates": [["276b6c46", "1218505489"], ["264400b7", "1218505490"], ["1e21afeb", "1218505491"], ["9180b4da", "1218505492"]], "updated_time": "2008-08-12T01:46:49Z"}
+       {"since_time": "2008-12-17T20:39:35Z", "period": 60, "updates": [["276b6c46", "1229546375"], ["264400b7", "1229546376"], ["1e21afeb", "1229546377"], ["9180b4da", "1229546378"]], "updated_time": "2008-12-17T20:40:45Z"}
     """
 
 if __name__ == "__main__":
