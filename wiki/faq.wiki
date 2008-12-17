@@ -22,7 +22,7 @@ is practical for both large and small publishers, and everyone has open and equa
 === Why not use use some kind of push oriented or streaming protocol such as XMPP or the Six Apart Update Stream? === 
 SUP has been designed to make life as easy as possible for feed publishers. Since it is based on simple HTTP
 and requires no special libraries, it can easily and efficiently be implemented in almost any environment or language.
-For example, <a href="http://laconi.ca/">Laconica</a>/<a href="http://identi.ca/">Identica</a> implmemented SUP in
+For example, <a href="http://laconi.ca/">Laconica</a>/<a href="http://identi.ca/">Identica</a> implemented SUP in
 about <a href="http://github.com/zh/laconica/tree/master/actions/sup.php">45 lines of PHP code</a> (plus
 <a href="http://github.com/zh/laconica/tree/master/actions/userrss.php">2 lines</a> to add the necessary HTTP header).
 SUP does not require streaming HTTP libraries or long lived HTTP connections (which are difficult with many hosting environments),
