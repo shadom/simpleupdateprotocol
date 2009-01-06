@@ -390,6 +390,7 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
 	<figure><artwork type="example">&lt;link xmlns="http://www.w3.org/2005/Atom"
       rel="http://api.friendfeed.com/2008/03#sup"
       type="application/json"
+      title="Updates Feed"
       href="http://example.com/sup.json#4496672d"/&gt;</artwork></figure>
 
       </section>
@@ -406,7 +407,7 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
 
 	<figure><artwork>Link: &lt;http://example.com/sup.json#276b6c46&gt;;
     rel="http://api.friendfeed.com/2008/03#sup";
-    href="application/json";
+    type="application/json";
     title="Updates Feed"</artwork></figure>
       </section>      
       
