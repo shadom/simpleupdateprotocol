@@ -265,7 +265,7 @@ Internet-Draft                     SUP                      January 2009
    composed of ASCII letters, numbers, or hyphens (regex [a-zA-Z0-9-]),
    and are produced via the following rules, as defined by the augmented
    BNF [RFC5234] syntax.
-   sup_id = 1*128(CHAR / DIGIT / "_")
+   sup_id = 1*128(CHAR / DIGIT / "-")
 
 
 5.  Update ID
@@ -289,7 +289,7 @@ Internet-Draft                     SUP                      January 2009
    characters composed of ASCII letters, numbers, or hyphens (regex
    [a-zA-Z0-9-]), and are produced via the following rules, as defined
    by the augmented BNF [RFC5234] syntax.
-   update_id = 1*128(CHAR / DIGIT / "_")
+   update_id = 1*128(CHAR / DIGIT / "-")
 
 
 6.  Discovery
