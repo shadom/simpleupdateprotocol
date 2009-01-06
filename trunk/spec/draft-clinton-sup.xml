@@ -161,7 +161,7 @@
 	  ID</xref>, <xref target="update-id">Update ID</xref>).
 	</t>
 	<t>
-	  This field is OPTIONAL. It MAY contain an empty list if no
+	  This field is REQUIRED. It MAY contain an empty list if no
 	  content feeds have been updated in the given interval.
 	</t>
 	<figure><artwork type="example">"updates": [

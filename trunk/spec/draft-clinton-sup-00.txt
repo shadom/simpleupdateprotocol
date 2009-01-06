@@ -188,7 +188,7 @@ Internet-Draft                     SUP                      January 2009
    A JSON List [RFC4627] of two-element JSON Lists, each containing the
    tuple (SUP ID (Section 4), Update ID (Section 5)).
 
-   This field is OPTIONAL.  It MAY contain an empty list if no content
+   This field is REQUIRED.  It MAY contain an empty list if no content
    feeds have been updated in the given interval.
    "updates": [
        ["14ea1a46", "16NV"],
