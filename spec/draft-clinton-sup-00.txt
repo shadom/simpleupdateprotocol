@@ -359,6 +359,7 @@ Internet-Draft                     SUP                      January 2009
    <link xmlns="http://www.w3.org/2005/Atom"
          rel="http://api.friendfeed.com/2008/03#sup"
          type="application/json"
+         title="Updates Feed"
          href="http://example.com/sup.json#4496672d"/>
 
 6.3.  HTTP 'Link' header [Ed: proposed]
@@ -370,7 +371,7 @@ Internet-Draft                     SUP                      January 2009
    more consistent with the 'atom:link' entry in the feed itself.]
    Link: <http://example.com/sup.json#276b6c46>;
        rel="http://api.friendfeed.com/2008/03#sup";
-       href="application/json";
+       type="application/json";
        title="Updates Feed"
 
 
@@ -378,7 +379,6 @@ Internet-Draft                     SUP                      January 2009
 
    A SUP feed indicating that five content feeds were updated in the
    interval between 1:14:35 and 1:16:45.
-
 
 
 
