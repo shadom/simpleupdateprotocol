@@ -259,7 +259,7 @@
 	<xref target="RFC5234">augmented BNF</xref> syntax.
       </t>
 
-      <figure><artwork>sup_id = 1*128(CHAR / DIGIT / "_")</artwork></figure>
+      <figure><artwork>sup_id = 1*128(CHAR / DIGIT / "-")</artwork></figure>
 
     </section>
 
@@ -286,7 +286,7 @@
 	<xref target="RFC5234">augmented BNF</xref> syntax.
       </t>
 
-      <figure><artwork>update_id = 1*128(CHAR / DIGIT / "_")</artwork></figure>
+      <figure><artwork>update_id = 1*128(CHAR / DIGIT / "-")</artwork></figure>
 
     </section>
 
