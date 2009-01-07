@@ -131,7 +131,7 @@
 	A SUP feed consists of a document of type 'application/json'
 	containing a single top-level
 	<xref target="RFC4627">JSON Object</xref>, mapping a set
-	well-known keys to well-defined values, as defined
+	of well-known keys to well-defined values, as defined
 	below.
       </t>
       
