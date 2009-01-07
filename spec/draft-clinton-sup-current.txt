@@ -45,8 +45,8 @@ Abstract
 Editorial Note
 
    To provide feedback on this Internet-Draft, join the Simple Update
-   Protocol room [1] on FriendFeed.
-
+   Protocol room [1] on FriendFeed.  [Ed: We may need/want to create a
+   mailing list for this going forward.]
 
 
 
