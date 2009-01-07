@@ -1,26 +1,15 @@
 NAME=draft-clinton-sup
-REV=00
-LASTREV=00
-LAST=$(NAME)-$(LASTREV)
+REV=current
 SOURCE=$(NAME)
 TARGET=$(NAME)-$(REV)
 
-default: $(TARGET).html $(TARGET).txt diff nits
-
-test: $(TARGET).txt 
-	python ../template_parser.py
-	python ../explain.cgi --test
-	python test_draft_examples.py $(TARGET).txt
+default: $(TARGET).html $(TARGET).txt nits
 
 $(TARGET).html: $(SOURCE).xml xml2rfc.tcl
 	tclsh8.4 xml2rfc.tcl xml2html $(SOURCE).xml  $(TARGET).html
 
 $(TARGET).txt:  $(SOURCE).xml xml2rfc.tcl
 	tclsh8.4 xml2rfc.tcl xml2rfc $(SOURCE).xml $(TARGET).txt
-
-.PHONY: diff
-diff:
-	./rfcdiff --html $(LAST).txt $(TARGET).txt
 
 .PHONY: nits
 nits:
