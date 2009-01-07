@@ -22,7 +22,7 @@
 <?rfc inline="yes" ?>
 <?rfc tocdepth="3" ?>
 
-<rfc category="exp" ipr="full3978" docName="draft-clinton-sup-00">
+<rfc category="exp" ipr="full3978" docName="draft-clinton-sup-current">
   <front>
     <title abbrev="SUP">Simple Update Protocol</title>
 
