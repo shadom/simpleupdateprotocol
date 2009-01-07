@@ -9,7 +9,7 @@ Expires: July 10, 2009                                            Google
 
 
                          Simple Update Protocol
-                          draft-clinton-sup-00
+                       draft-clinton-sup-current
 
 Status of this Memo
 
