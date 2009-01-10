@@ -24,8 +24,8 @@
 #
 #  -----------------------------------------------------------------
 
-version="2.08.10";
-progdate="";
+version="2.11.00";
+progdatste="";
 export LC_ALL=C
 program=${0##*/}
 progdir=${0%/*} ; [ "$progdir" ] || progdir=.
@@ -447,12 +447,12 @@ BEGIN {
 
     bp["rfc3978_5_2a"] = "This document may not be modified, and derivative works of it may " \
                       "not be created, except to publish it as an RFC and to translate it " \
-                      "into languages other than English.$";
+                      "into languages other than English\\.$";
 
     bp["rfc3978_5_2ax"] = "This document may not be modified, and derivative works of it may " \
                       "not be created, except to publish it as an RFC and to translate it " \
                       "into languages other than English other than to extract section " \
-                      "[0-9.]+ as-is for separate use.$";
+                      "[0-9.]+ as-is for separate use\\.$";
 
     bp["rfc3978_5_2b"] = "This document may not be modified, and derivative works of it may " \
                       "not be created.$";
@@ -473,6 +473,9 @@ BEGIN {
     bp["rfc3978_5_4_p1_now"] = sprintf("Copyright \\(C\\) The Internet Society \\(?%s\\)?", year);
 
     bp["rfc3978_5_4_p1_u4748_now"] = sprintf("Copyright \\(C\\) The IETF Trust \\(?%s\\)?", year);
+
+    bp["trust-16-oct-2008_6_b_p2_now"] = sprintf("Copyright \\(c\\) %s IETF Trust and " \
+		      "the persons identified as the document authors", year);
 
     bp["rfc3978_5_4_p2"] = "This document is subject to the rights, licenses and restrictions contained in BCP " \
                       "78, and except as set forth therein, the authors retain all their rights.$";
@@ -516,6 +519,29 @@ BEGIN {
                       "proprietary rights that may cover technology that may be required " \
                       "to implement this standard.  Please address the information to the " \
                       "IETF at ietf-ipr@ietf.org.$";
+
+    bp["trust-16-oct-2008_6_a"] = "This Internet-Draft is submitted to IETF in full " \
+		      "conformance with the provisions of BCP 78 and BCP 79\\.$";
+
+    bp["trust-16-oct-2008_6_b_p2"] = "Copyright \\(c\\) [0-9]+ IETF Trust and " \
+		      "the persons identified as the document authors\\.  All rights reserved\\.$";
+    
+    bp["trust-16-oct-2008_6_b_p3"] = "This document is subject to BCP 78 and the " \
+		      "IETF Trust's Legal Provisions Relating to IETF Documents " \
+		      "\\(http://trustee.ietf.org/license-inf(o|o/)\\) " \
+		      "in effect on the date of publication of this document.  " \
+		      "Please review these documents " \
+		      "carefully, as they describe your rights and restrictions with respect to " \
+		      "this document\\.$";
+
+    bp["trust-16-oct-2008_6_c_i"] = "This document may not be modified, and derivative" \
+		      "works of it may not be created, except to format it for publication" \
+		      "as an RFC and to translate it into languages other than English\\.$";
+
+    bp["trust-16-oct-2008_6_c_ii"] = "This document may not be modified, and " \
+		      "derivative works of it may not be created, and it may not be published " \
+		      "except as an Internet-Draft\\.$"
+
 
     bp["rfc2026_10_4A"] = "The IETF takes no position regarding the validity or scope of " \
                       "any intellectual property or other rights that might be claimed " \
@@ -624,11 +650,17 @@ BEGIN {
     bp["1id_guidelines_p4a"] = "The list of Internet-Draft Shadow Directories can be accessed at:? " \
 			"http:// *www.ietf.org/ *shadow.html ?\\.?$";
 
-    bad[" MUST not "]	= "Using lowercase 'not' together with uppercase 'MUST' is not an " \
-			  "accepted usage according to RFC 2119.  Please use 'MUST NOT' " \
-			  "(if that is what you mean)."
 
-    bad[" MAY NOT "]	= "The expression 'MAY NOT', while looking like RFC 2119 requirements " \
+    bad["MUST not"]	= "Using lowercase 'not' together with uppercase 'MUST', "\
+			  "'SHALL', 'SHOULD', or 'RECOMMENDED' is not an " \
+			  "accepted usage according to RFC 2119.  Please use uppercase 'NOT' " \
+			  "together with RFC 2119 keywords (if that is what you mean)."
+
+    bad["SHALL not"] = bad["MUST not"]
+    bad["SHOULD not"] = bad["MUST not"]
+    bad["not RECOMMENDED"] = bad["MUST not"]
+
+    bad["MAY NOT"]	= "The expression 'MAY NOT', while looking like RFC 2119 requirements " \
 			  "text, is not defined in RFC 2119, and should not be used.  Consider " \
 			  "using 'MUST NOT' instead (if that is what you mean)."
 
@@ -674,7 +706,7 @@ function get_para() {
     para = strip($0);
     while ((getline > 0) && (text = strip($0)) != "") {
 	checkline()
-	if (para ~ /-$/) {
+	if (para ~ /-$/ || para ~ /[A-Za-z0-9]\/$/) {
 	    para = para text;
 	} else {
 	    para = para " " text;
@@ -943,6 +975,19 @@ function oldandnewerr(old, new) {
 
 
 # ----------------------------------------------------------------------
+#   olderr(old, new)
+#
+function olderr(old, new) {
+    oldname = expandname(old)
+    str = sprintf("Found new %s boilerplate, which is fine, but *also* found old boilerplate from %s on line %s.", new, oldname, has[old]);
+    err(str);
+    if (option_verbose && option_pass2) {
+	showsection(old, 1)
+    }
+}
+
+
+# ----------------------------------------------------------------------
 # update_references(line, pos)
 #
 
@@ -1103,6 +1148,7 @@ function err(str, indented) {
 # ----------------------------------------------------------------------
 #   errc()
 #
+#   Errors which are IESG checklist errors, but not submission errors
 
 function errc(str, indented) {
     if (!option_submitcheck) {
@@ -1397,7 +1443,44 @@ function report(filename) {
 	announce("Checking boilerplate required by RFC 3978 and 3979, updated by RFC 4748:")
 	warncount = warnings;  errcount = errors; commentcount = comments;
 
-	if ( (has["rfc3667_5_1"]  ||
+	if (has["trust-16-oct-2008_6_a"] ||
+	    has["trust-16-oct-2008_6_b_p2"] ||
+	    has["trust-16-oct-2008_6_b_p3"]) {
+
+	    # We have Trust Provisions 16 Oct 2008 boilerplate.  Check that we don't have older
+	    # boilerplate, too.
+	        for ( bpname in bp ) {
+		    if ( bpname ~ /^rfc2026/ ||
+			 bpname ~ /^rfc3667/ ||
+			 bpname ~ /^rfc3978/ ||
+			 bpname ~ /^rfc3979/ ) {
+			if ( has[bpname] ) olderr(bpname, "IETF Trust Provisions of 16 October 2008")
+		    }
+		}
+
+	    if ( !is_rfc ) {
+		if ( ! has["trust-16-oct-2008_6_a"] ) sectionerr("trust-16-oct-2008_6_a",
+				"IETF Trust Provisions (16 Oct 2008) Section 6.a Notice of Compliance with BCP 78 and BCP 79");
+	    }
+	    if ( ! has["trust-16-oct-2008_6_b_p2"] ) sectionerr("trust-16-oct-2008_6_b_p2",
+				"IETF Trust Provisions (16 Oct 2008) Section 6.b Copyright Notice");
+	    if ( ! has["trust-16-oct-2008_6_b_p3"] ) sectionerr("trust-16-oct-2008_6_b_p3",
+				"IETF Trust Provisions (16 Oct 2008) Section 6.b License Notice");
+
+	    if (full_docname ~ /^draft-ietf/ ) {
+		if ( has["trust-16-oct-2008_6_c_i"])
+		    { warn("The document has an IETF Trust Provisions (16 Oct. 2008) Section 6.c(i) Publication Limitation clause."); }
+		if ( has["trust-16-oct-2008_6_c_ii"])
+		    { err("The document has an IETF Trust Provisions (16 Oct. 2008) Section 6.c(ii) Publication Limitation clause."); }
+	    } else {
+		if ( has["trust-16-oct-2008_6_c_i"])
+		    { note("The document has an IETF Trust Provisions (16 Oct. 2008) Section 6.c(i) Publication Limitation clause."); }
+		if ( has["trust-16-oct-2008_6_c_ii"])
+		    { comment("The document has an IETF Trust Provisions (16 Oct. 2008) Section 6.c(ii) Publication " \
+			"Limitation clause.  If this document is intended for submission to the IESG for " \
+			"publication, this constitutes an error."); }
+	    }
+	} else if ( (has["rfc3667_5_1"]  ||
 	      has["rfc3978_5_1_a"] ||
 	      has["rfc3978_5_1"] ||
 	      has["rfc3978_5_2b"] ||
@@ -1407,11 +1490,16 @@ function report(filename) {
 	      has["rfc3979_5_p1"]  ||
 	      has["rfc3979_5_p2"]  ||
 	      has["rfc3979_5_p3"] ) ) {
-		  non_bp_errs = errors;
-		  non_bp_warn = warnings;
+
+	    err("It looks like you\047re using RFC 3978 boilerplate.  You should update this to the " \
+		 "boilerplate described in the IETF Trust License Policy document (see " \
+		 "http://trustee.ietf.org/license-info), which is required from December 16, 2008.  " \
+		 "Version 1.34 of xml2rfc can be used to produce documents with boilerplate " \
+		 "according to the mentioned Trust License Policy document.")
 
 	    # Ok, so we have some 3978/3979 boilerplate - make sure we don't *also* have some
 	    # lingering old boilerplate...
+	    {
 	       if ( has["rfc3978_5_1"] )  if ( has["rfc3667_5_1"] )	  oldandnewerr("rfc3667_5_1", "rfc3978_5_1");
 
 	       if ( has["rfc3978_5_4_p1"] ) if ( has["rfc2026_10_4C_p1"] ) oldandnewerr("rfc2026_10_4C_p1", "rfc3978_5_4_p1");
@@ -1426,7 +1514,7 @@ function report(filename) {
 
 	       if ( has["rfc3979_5_p1"] )  if ( has["rfc2026_10_4A"] )   oldandnewerr("rfc2026_10_4A", "rfc3979_5_p1");
 	       if ( has["rfc3979_5_p3"] )  if ( has["rfc2026_10_4B"] )   oldandnewerr("rfc2026_10_4B", "rfc3979_5_p3");
-
+	    }
 
 	    if ( has["rfc2026_lax_claim"] ||
 	       has["rfc2026b_lax_claim"] )
@@ -1443,13 +1531,13 @@ function report(filename) {
 				    }
 	    if (full_docname ~ /^draft-ietf/ ) {
 		if ( has["rfc3978_5_2b"] ) { err("The document has an RFC 3978 Section 5.2(b) Derivative Works Limitation clause."); }
-		if ( has["rfc3978_5_3"])  { err("The document has an RFC 3978 Section 5.3 Publication Limitation clause ."); }
+		if ( has["rfc3978_5_3"])  { err("The document has an RFC 3978 Section 5.3 Publication Limitation clause."); }
 	    } else {
 		
 		if ( has["rfc3978_5_2b"] ) { comment("The document has an RFC 3978 Section 5.2(b) Derivative Works Limitation clause.  " \
 						    "If this document is intended for submission to the IESG for publication, this " \
 						    "constitutes an error."); }
-		if ( has["rfc3978_5_3"])  { comment("The document has an RFC 3978 Section 5.3 Publication Limitation clause .  " \
+		if ( has["rfc3978_5_3"])  { comment("The document has an RFC 3978 Section 5.3 Publication Limitation clause.  " \
 						    "If this document is intended for submission to the IESG for publication, this " \
 						    "constitutes an error."); }
 	    }
@@ -1527,7 +1615,6 @@ function report(filename) {
 					}
 					err("Looks like you\047re using RFC 2026 boilerplate.  This must be updated to follow RFC 3978/3979, as updated by RFC 4748.");
 	} else {
-	    errors += 7;
 	    err("Cannot find any IPR, Copyright or other required boilerplate in this document.");
 	}
 
@@ -1563,8 +1650,10 @@ function report(filename) {
 		sub(".*/", "", full_docname)
 		sub(/\.(txt|pdf|xml|doc)$/, "", full_docname)
 
-		if (good_docname != full_docname) {
+		if (good_docname != full_docname || full_docname ~ /[^a-z0-9-]/) {
 		    errg(sprintf("Bad filename characters: the document name given in the document, '%s', contains other characters than digits, lowercase letters and dash.", full_docname))
+		} else if (file_docname ~ /[^a-z0-9-]/) {
+		    errg(sprintf("Bad filename characters: the file name of the draft, '%s', contains other characters than digits, lowercase letters and dash.", file_docname))
 		}
 
 		if ( ! match(full_docname, /.*-[0-9][0-9]$/) ) {
@@ -1638,9 +1727,13 @@ function report(filename) {
 	    if (!has_abstract)	{ err("The document seems to lack an Abstract section.", indented_abstract); }
 	    if (!has_intro)	{ errc("The document seems to lack an Introduction section.", indented_intro); }
 	    if (!has_security)	{ errc("The document seems to lack a Security Considerations section.", indented_security); }
-	    if (!has_iana)	{ errc("The document seems to lack an IANA Considerations section.  "	\
+	    if (is_rfc) {
+		if (!has_iana)	{ comment("The document seems to lack an IANA Considerations section.  ", indented_iana); }
+	    } else {
+		if (!has_iana)	{ errc("The document seems to lack an IANA Considerations section.  "	\
 				   "(See Section 2.2 of http://www.ietf.org/ID-Checklist.html for how "	\
 				   "to handle the case when there are no actions for IANA.)", indented_iana); }
+	    }
 	    if (!has_addr)	{ errc("The document seems to lack an Authors\047 Addresses Section."); }
 	    if (has_refs && ! has_splitrefs)	{
 				    errc("The document seems to lack separate sections for Informative/Normative References.  " \
@@ -1776,12 +1869,14 @@ function report(filename) {
 	    if (full_docname ~ /^draft-ietf/ ) {
 		if ( has["rfc3978_5_2a"])	    {	warn("The document has an RFC 3978 Section 5.2(a) Derivative Works Limitation clause."); }
 	    } else {
-		if ( has["rfc3978_5_2a"])	    {	note("The document has an RFC 3978 Section 5.2(a) Derivative Works Limitation clause."); }	
+		if ( has["rfc3978_5_2a"])	    {	note("The document has an RFC 3978 Section 5.2(a) Derivative Works Limitation clause."); }
 	    }
 	    if ( has["rfc3978_5_4_p1"] &&
 		!has["rfc3978_5_4_p1_now"])   {	warn("The copyright year in the RFC 3978 Section 5.4 Copyright Line does not match the current year"); }
 	    if ( has["rfc3978_5_4_p1_u4748"] &&
 		!has["rfc3978_5_4_p1_u4748_now"])   {	warn("The copyright year in the IETF Trust Copyright Line does not match the current year"); }
+	    if ( has["trust-16-oct-2008_6_b_p2"] &&
+		!has["trust-16-oct-2008_6_b_p2_now"])   {	warn("The copyright year in the IETF Trust and authors Copyright Line does not match the current year"); }
 	    if ( has["rfc3978_5_4_p1_old"] &&
 		 has["rfc3978_5_4_p1_now"])   {	warn(sprintf("The copyright year in the RFC 3978 Section 5.4 Copyright around line %s does not match the year around line %s",
 							       has["rfc3978_5_4_p1_old"], has["rfc3978_5_4_p1_now"]));
@@ -1845,8 +1940,9 @@ function report(filename) {
 		"defined in RFC 2119; otherwise it should not be all-uppercase.")
 	    }
 
-	    for (pattern in found_bad) {
-		para = found_bad[pattern]
+	    for (bad_line in found_bad_pat) {
+		pattern = found_bad_pat[bad_line]
+		para = found_bad_para[bad_line]
 		warn(bad[pattern] "\n\n     Found '" strip(pattern) "' in this paragraph:\n\n    " para)
 	    }
 
@@ -2153,7 +2249,11 @@ function check_para(para) {
     # in particular, word combinations can't be reliably checked line-by-line as they
     # may be split across a line break.
     for (pattern in bad) {
-	if (para ~ pattern) found_bad[pattern] = para;
+	xpat = "[^-A-Za-z0-9_]" pattern "[^-A-Za-z0-9_]"
+	if (para ~ xpat) {
+	    found_bad_pat[FNR] = pattern
+	    found_bad_para[FNR] = para
+	}
     }
 }
 
@@ -2312,6 +2412,8 @@ normalized ~ /this document may not be modified/                {
 								    para = get_para()
                                                                     match_para(para, "rfc3978_5_2a") || match_para(para, "rfc3978_5_2ax");
                                                                     match_para(para, "rfc3978_5_2b") || match_para(para, "rfc3978_5_2bx");
+								    match_para(para, "trust-16-oct-2008_6_c_i");
+								    match_para(para, "trust-16-oct-2008_6_c_ii");
                                                                 }
 normalized ~ /copyright ?\(c\) ?the /				{
 								    para = get_para()
@@ -2386,6 +2488,23 @@ normalized ~ /this document is an internet-draft and is/	{
 									update_references(para, FNR);
 								    }
 								}
+
+
+# IETF Trust Provisions boilerplate
+normalized ~ /this internet-draft is submitted to ietf in/	{
+								    para = get_para()
+								    match_para(para, "trust-16-oct-2008_6_a", "trust-16-oct-2008_6_b_p2", "trust-16-oct-2008_6_b_p3")
+								}
+normalized ~ /copyright \(c\) [0-9]+ ietf trust and/		{
+								    para = get_para()
+								    has_some_year = match_para(para, "trust-16-oct-2008_6_b_p2", "trust-16-oct-2008_6_b_p3");
+								    has_this_year = match_para(para, "trust-16-oct-2008_6_b_p2_now");
+								}
+normalized ~ /this document is subject to bcp 78/		{
+								    para = get_para()
+								    match_para(para, "trust-16-oct-2008_6_b_p3")
+								}
+
 
 # RFC 2119 compliance
 normalized ~ /(the key ?words|in this document, several words are used)/	{
