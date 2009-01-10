@@ -4,8 +4,8 @@
 Network Working Group                                        P. Buchheit
 Internet-Draft                                                FriendFeed
 Intended status: Experimental                            D. Clinton, Ed.
-Expires: July 10, 2009                                            Google
-                                                         January 6, 2009
+Expires: July 14, 2009                                            Google
+                                                        January 10, 2009
 
 
                          Simple Update Protocol
@@ -34,7 +34,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on July 10, 2009.
+   This Internet-Draft will expire on July 14, 2009.
 
 Abstract
 
@@ -52,7 +52,7 @@ Editorial Note
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 1]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 1]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -82,7 +82,7 @@ Table of Contents
      10.1. Normative References . . . . . . . . . . . . . . . . . . .  9
      10.2. Informative References . . . . . . . . . . . . . . . . . .  9
    Appendix A.  Acknowledgements  . . . . . . . . . . . . . . . . . .  9
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . .  9
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 10
    Intellectual Property and Copyright Statements . . . . . . . . . . 11
 
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 2]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 2]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -164,7 +164,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 3]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 3]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -220,7 +220,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 4]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 4]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -276,7 +276,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 5]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 5]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -332,7 +332,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 6]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 6]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -365,7 +365,7 @@ Internet-Draft                     SUP                      January 2009
 6.3.  HTTP 'Link' header [Ed: proposed]
 
    [Ed: Perhaps HTTP Link headers, as formalized in
-   [nottingham-http-link-header], could be used instead of, or in
+   [I-D.nottingham-http-link-header], could be used instead of, or in
    addition to, the one-off X-SUP-ID header.  For example, the following
    conveys the same information in a more standardized manner, and is
    more consistent with the 'atom:link' entry in the feed itself.]
@@ -388,7 +388,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 7]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 7]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -444,7 +444,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                 [Page 8]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 8]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -476,9 +476,10 @@ Internet-Draft                     SUP                      January 2009
 
 10.2.  Informative References
 
-   [nottingham-http-link-header]
+   [I-D.nottingham-http-link-header]
               Nottingham, M., "Link Relations and HTTP Header Linking",
-              December 2008.
+              draft-nottingham-http-link-header-03 (work in progress),
+              November 2008.
 
 URIs
 
@@ -499,8 +500,7 @@ Appendix A.  Acknowledgements
 
 
 
-
-Buchheit & Clinton        Expires July 10, 2009                 [Page 9]
+Buchheit & Clinton        Expires July 14, 2009                 [Page 9]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -556,7 +556,7 @@ Authors' Addresses
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                [Page 10]
+Buchheit & Clinton        Expires July 14, 2009                [Page 10]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -612,5 +612,5 @@ Intellectual Property
 
 
 
-Buchheit & Clinton        Expires July 10, 2009                [Page 11]
+Buchheit & Clinton        Expires July 14, 2009                [Page 11]
 
