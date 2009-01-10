@@ -95,6 +95,9 @@
             <xs:enumeration value="full3978"/>
             <xs:enumeration value="noModification3978"/>
             <xs:enumeration value="noDerivatives3978"/>
+            <xs:enumeration value="trust200811"/>
+            <xs:enumeration value="noModificationTrust200811"/>
+            <xs:enumeration value="noDerivativesTrust200811"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
@@ -220,7 +223,6 @@
     </xs:complexType>
   </xs:element>
   <!-- The body -->
-  <!-- later on, may be (section+,appendix*,section*) -->
   <xs:element name="middle">
     <xs:complexType>
       <xs:sequence>
@@ -255,7 +257,7 @@
       </xs:attribute>
     </xs:complexType>
   </xs:element>
-  <!--
+  <!-- use of <appendix/> is deprecated ...
     <!ELEMENT appendix    ((t|figure|texttable|iref)*,appendix)*>
     <!ATTLIST appendix
               anchor      ID                 #IMPLIED

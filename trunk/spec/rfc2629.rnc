@@ -63,6 +63,9 @@ attlist.rfc &=
     | "full3978"
     | "noModification3978"
     | "noDerivatives3978"
+    | "trust200811"
+    | "noModificationTrust200811"
+    | "noDerivativesTrust200811"
   }?,
   attribute iprExtract { xsd:IDREF }?,
   attribute submissionType { "IETF" | "independent" }?,
@@ -142,7 +145,6 @@ note = element note { attlist.note, t+ }
 attlist.note &= attribute title { ATEXT }
 # The body
 
-# later on, may be (section+,appendix*,section*)
 middle = element middle { attlist.middle, section+ }
 attlist.middle &= empty
 section =
@@ -153,6 +155,7 @@ attlist.section &=
   attribute anchor { xsd:ID }?,
   attribute title { ATEXT },
   [ a:defaultValue = "default" ] attribute toc { "include" | "exclude" | "default" }?
+# use of <appendix/> is deprecated...
 # <!ELEMENT appendix    ((t|figure|texttable|iref)*,appendix*)>
 # <!ATTLIST appendix
 #           anchor      ID                 #IMPLIED
