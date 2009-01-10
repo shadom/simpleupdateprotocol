@@ -8,6 +8,7 @@
 <!ENTITY rfc4287 SYSTEM "bibxml/reference.RFC.4287.xml">
 <!ENTITY rfc4627 SYSTEM "bibxml/reference.RFC.4627.xml">
 <!ENTITY rfc5234 SYSTEM "bibxml/reference.RFC.5234.xml">
+<!ENTITY id-nottingham-http-link-header SYSTEM "bibxml/reference.I-D.draft-nottingham-http-link-header-03.xml">
 ]>
 
 <?xml-stylesheet type="text/xsl" href="rfc2629.xsl"/ ?>
@@ -400,7 +401,7 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
       <section title="HTTP 'Link' header [Ed: proposed]">
 	<t>
 	  [Ed: Perhaps HTTP Link headers, as formalized in
-	  <xref target="nottingham-http-link-header"/>, could be used
+	  <xref target="I-D.nottingham-http-link-header"/>, could be used
 	  instead of, or in addition to, the one-off X-SUP-ID header.
 	  For example, the following conveys the same information in a
 	  more standardized manner, and is more consistent with the
@@ -487,32 +488,7 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
     </references>
 
     <references title="Informative References">
-
-      <reference anchor="nottingham-http-link-header">
-	
-	<front>
-	  <title>Link Relations and HTTP Header Linking</title>
-	  <author fullname="Mark Nottingham" initials="M." surname="Nottingham">
-	    <organization />
-	    <address>
-	      <email>mnot@mnot.net</email>
-	      <uri>http://www.mnot.net/</uri>
-	    </address>
-	  </author>
-	  <date year="2008" month="December" />
-	  <abstract>
-	    <t>
-	      This document specifies relation types for Web links,
-	      and defines a registry for them.  It also defines how to
-	      send such links in HTTP headers with the Link
-	      header-field.
-	    </t>
-	  </abstract>
-	</front>
-	<format type='TXT'
-                target="http://tools.ietf.org/id/draft-nottingham-http-link-header-03.txt"/>
-      </reference>
-
+     &id-nottingham-http-link-header;
     </references>
 
     <section title="Acknowledgements">
