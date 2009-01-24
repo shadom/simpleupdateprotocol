@@ -39,8 +39,8 @@
 
       <t>
 	This specification defines the Simple Update Protocol, a
-	mechanism by which content feed publishers can signal to feed
-	consumers that certain feeds have been updated.
+	mechanism by which content publishers can signal to 
+	consumers that certain resources have been updated.
       </t>
 
     </abstract>
@@ -61,11 +61,13 @@
 
       <t>
 	SUP (Simple Update Protocol) consists of a notification format
-	that feed publishers can use to alert consumers that one or
-	more content feeds have been recently updated. The presence of
-	a SUP feed allows for increased efficiency, and decreased
-	latency, by reducing or eliminating the need for consumers to
-	frequently poll each underlying feed individually.
+	called an <xref target="updates-document">Updates
+	Document</xref> that content publishers can use to alert
+	consumers that one or more resources have been recently
+	changed.  Clients can subsequently poll a single Updates
+	Document rather than each underlying resource individually and
+	thus decrease both the latency in discovering recent changes
+	and the total amount of bandwidth and time consumed.
       </t>
 
       <section title="Notational Conventions">
@@ -81,13 +83,14 @@
 
       <section title="Design Considerations">
 	<t>
-	  SUP feeds are designed to be easy for publishers to create,
-          increasing in benefit as the number of underlying feeds
-          grows.  Consumers that read a large number of feeds from a
-          given publisher, such as a blog aggregators, hosted feed
-          readers, or intermediary publishers, will similarly benefit
-          most from using the SUP feed to reduce polling rates for
-          individual feeds and query only when updates are available.
+	  Updates Documents are designed to be easy for publishers to
+          create, and increase in benefit as the number of underlying
+          resources and the number of consumers grow.  Similarly,
+          consumers that poll for a large number of resources from a
+          given publisher, such as blog aggregators, feed readers,
+          or intermediary publishers, will benefit from polling a
+          publisher's Updates Document before retrieving each
+          underlying resource individually.
 	</t>
       </section>
 
@@ -95,34 +98,27 @@
 
     <section title="Overview">
       <t>
-	Publishers that produce large numbers of content feeds can
-	aggregate a list of feeds that have changed over a given time
-	period and publish this list as a <xref target="sup-feed">SUP
-	Feed</xref> to consumers.  Each underlying content feed is
-	identified by an opaque token called
-	a <xref target="sup-id">SUP ID</xref>, which consumers can
-	associate with a previously-seen feed URL, which can then be
-	re-queried as necessary.  Publishers use
-	the <xref target="x-sup-id">X-SUP-ID HTTP header</xref> and
-	the
-	<xref target="sup-link">atom:link element</xref> with each
-	content feed to announce the feed's unique SUP ID and the
-	location of the SUP feed itself.
+	Publishers of URI-addressable resources may associated a
+	semi-unique opaque identifier, called
+	a <xref target="resource-token">Resource Token</xref>, with
+	each underlying resource.  The publisher signals the existence
+	of these Resource Tokens via a discovery mechanism during the
+	retrieval of the resource, either within the resource itself
+	(the <xref target="updates-link-element">Updates Link
+	Element</xref>) or as meta-data associated with the response
+	(the <xref target="updates-link-header">Updates Link
+	Header</xref>).  The publisher may then create a
+	URI-addressable <xref target="updates-document">Updates
+	Document</xref> that informs consumers which resources, as
+	identified by Resource Tokens, have been recently modified.
       </t>
     </section>
 
-    <section anchor="sup-feed" title="SUP Feed">
+    <section anchor="updates-document" title="Updates Document">
 
       <t>
-	[Ed: Perhaps consider changing the name of this to 'Updates
-	Feed' to reduce redundancy.  Also, "feed" itself might be a
-	misleading term, as each new version tends to overwrite the
-	last completely.  Perhaps "Updates Document" is better?]
-      </t>
-
-      <t>
-	A SUP feed consists of a document of type 'application/json'
-	containing a single top-level
+	An Updates Document consists of a URI-addressable resource of
+	type 'application/json' containing a single top-level
 	<xref target="RFC4627">JSON Object</xref>, mapping a set
 	of well-known keys to well-defined values, as defined
 	below.
@@ -130,12 +126,12 @@
       
       <t>
 	Consumers SHOULD ignore any unanticipated keys in the JSON
-	document and continue to parse the expected values as
-	intended.
+	dictionary and SHOULD continue to parse all anticipated keys
+	as specified.
       </t>
 
       <t>
-	The overall structure of the SUP feed is as follows:
+	The overall structure of the Updates Document is as follows:
       </t>
 
       <figure><artwork type="example">{
@@ -150,12 +146,13 @@
 	<t>
 	  A <xref target="RFC4627">JSON List</xref> of two-element
 	  JSON Lists, each containing the tuple
-	  (<xref target="sup-id">SUP
-	  ID</xref>, <xref target="update-id">Update ID</xref>).
+	  (<xref target="resource-token">Resource
+	  Token</xref>, <xref target="update-token">Update
+	  Token</xref>).
 	</t>
 	<t>
 	  This field is REQUIRED. It MAY contain an empty list if no
-	  content feeds have been updated in the given interval.
+	  resources have been updated in the given interval.
 	</t>
 	<figure><artwork type="example">"updates": [
     ["14ea1a46", "16NV"], 
@@ -167,7 +164,7 @@
       <section title="The 'period' field">
 	<t>
 	  A positive integer representing the the duration of time
-	  covered by this feed, in seconds.
+	  under consideration in this Updates Document, in seconds.
 	</t>
 	<t>
 	  This field is REQUIRED.
@@ -178,7 +175,8 @@
       <section title="The 'since_time' field">
 	<t>
 	  An <xref target="RFC3339"/> formatted string representing
-	  the start time of the interval covered by this feed.
+	  the start time of the interval covered by this Updates
+	  Document.
 	</t>
 	<t>
 	  This field is REQUIRED.
@@ -189,7 +187,8 @@
       <section title="The 'updated_time' field">
 	<t>
 	  An <xref target="RFC3339"/> formatted string representing
-	  the end time of the interval covered by this feed.
+	  the end time of the interval covered by this Updates
+	  Document.
 	</t>
 	<t>
 	  This field is REQUIRED.
@@ -205,8 +204,8 @@
       <section title="The 'available_periods' field">
 	<t>
 	  A JSON Object mapping time periods (in seconds) to URLs
-	  where an additional SUP feed of the corresponding duration
-	  may be found.
+	  where an additional Updates Documents of the corresponding
+	  duration may be found.
 	</t>
 	<t>
 	  This field is OPTIONAL.
@@ -219,143 +218,174 @@
       </section>
     </section>
 
-    <section anchor="sup-id" title="SUP ID">
+    <section anchor="resource-token" title="Resource Token">
 
       <t>
-	[Ed: Perhaps consider changing this to 'Resource Id' to reduce
-	redundancy.  And more generally, consider calling the
-	underlying documents "resources" rather than "feeds", as the
-	SUP technique isn't specific to only Atom or RSS content.]
-      </t>
-
-      <t>
-	A SUP ID is a short opaque string used to identify a
-	individual content feed.  A single feed MUST always map to a
-	single, stable SUP ID, but different feeds MAY occasionally
-	share the same SUP ID.
+	A Resource Token is a short opaque string used to identify a
+	individual URI-addressable resource.  Each unique underlying
+	resource MUST always map to a single, stable Resource Token,
+	but different resources MAY occasionally share the same
+	Resource Token.
       </t>
 
       <t>
 	Consumers SHOULD NOT attempt to parse or interpret the
-	contents of the string, but instead should maintain their own
-	mapping of SUP IDs to resource URIs.  The mapping of SUP ID to
-	resource URI is established via
+	contents of the Resource Token.  Clients SHOULD maintain a
+	mapping of Resource Tokens to resource URIs is established via
 	the <xref target="discovery">Discovery</xref> mechanisms
 	defined below.
       </t>
 
       <t>
-	A valid SUP ID is a non-empty string of no more than 128
-	characters composed of ASCII letters, numbers, or hyphens
-	(regex [a-zA-Z0-9-]), and are produced via the following
+	A valid Resource Token is a non-empty string of no more than
+	128 characters composed of ASCII letters, numbers, or hyphens
+	(regex [a-zA-Z0-9\-]), and are produced via the following
 	rules, as defined by the
 	<xref target="RFC5234">augmented BNF</xref> syntax.
       </t>
 
-      <figure><artwork>sup_id = 1*128(CHAR / DIGIT / "-")</artwork></figure>
+      <figure><artwork>resource_token = 1*128(CHAR / DIGIT / "-")</artwork></figure>
 
     </section>
 
-    <section anchor="update-id" title="Update ID">
+    <section anchor="update-token" title="Update Token">
 
       <t>
-	[Ed: Consider changing the name of this to "Revision Id".]
-      </t>
-
-
-      <t>
-	The Update ID is a short opaque string used to disambiguate
-	distinct updates to a content feed.  In practice, the last
-	update timestamp of the content feed is a suitable identifier,
-	but clients SHOULD NOT attempt to parse or intepret the
-	contents of the string.
+	The Update Token is a short opaque string used to disambiguate
+	distinct updates to a URI-addressable resource.  In practice,
+	the last update timestamp of the resource or its ETag is a
+	suitable identifier, but clients SHOULD NOT attempt to parse
+	or interpret the contents of the string.
       </t>
 
       <t>
-	A valid Update ID is a non-empty string of no more than 128
+	A valid Update Token is a non-empty string of no more than 128
 	characters composed of ASCII letters, numbers, or hyphens
-	(regex [a-zA-Z0-9-]), and are produced via the following
+	(regex [a-zA-Z0-9\-]), and are produced via the following
 	rules, as defined by the
 	<xref target="RFC5234">augmented BNF</xref> syntax.
       </t>
 
-      <figure><artwork>update_id = 1*128(CHAR / DIGIT / "-")</artwork></figure>
+      <figure><artwork>update_token = 1*128(CHAR / DIGIT / "-")</artwork></figure>
 
     </section>
 
     <section anchor="discovery" title="Discovery">
       <t>
 	This section discusses how a publisher signals the existence
-	of SUP feed.
+	of an Updates Document and how the publisher establishes the
+	relationship between the semi-unique Resource Token and an
+	underlying URI-addressable resource.
       </t>
 
       <t>
-	Feeds SHOULD announce the availabilty of by setting the
-	<xref target="x-sup-id">'X-SUP-ID' HTTP header</xref>, and/or
-	by including a <xref target="sup-link">'atom:link'
-	element</xref>, or both.
+	Publishers SHOULD announce the availability of an Updates
+	Document and associate the underlying resource with a
+	corresponding Resource Token via
+	the <xref target="updates-link-header">Updates Link
+	Header</xref>.  If the underlying resource is an XML-based
+	document, the publisher may additionally include
+	a <xref target="updates-link-element">Updates Link
+	Element</xref> within the document itself.
       </t>
 
       <t>
-	Use of the 'X-SUP-ID' HTTP header is RECOMMENDED since it
-	works for feed types, but feed consumers SHOULD be prepared
-	for the presence of the link element in addition to, or
-	instead of, the X-SUP-ID header.
+	Use of the Updates Link Header is RECOMMENDED as it is
+	applicable to all resources published over HTTP, but consumers
+	SHOULD be prepared for the presence of the Updates Link
+	Element in addition to, or instead of, the Updates Link
+	Header, when the underlying resource is a XML-based document.
       </t>
 
-      <section anchor="x-sup-id" title="'X-SUP-ID' HTTP header">
+      <section anchor="updates-link-header" title="Updates Link Header">
 
 	<t>
 	  Responses to <xref target="RFC2616">HTTP</xref> requests for
-	  content feeds SHOULD include a <xref target="RFC2616">HTTP
-	  Response Header</xref> of 'X-SUP-ID' to signal both the URI
-	  at which the <xref target="sup-feed">SUP feed</xref> may be
-	  polled and the <xref target="sup-id">SUP ID</xref> of the
-	  underlying content feed.
+	  resources SHOULD include a <xref target="RFC2616">HTTP
+	  Response Header</xref> of 'Link' to signal both the URI at
+	  which the <xref target="updates-document">Updates
+	  Document</xref> may be polled and the
+	  semi-unique <xref target="resource-token">Resource
+	  Token</xref> of the resource being retrieved.
 	</t>
 
 	<t>
-	  Valid 'X-SUP-ID' headers are produced via the following
-	  rules, as defined by the
+	  The 'rel' value of the Link header is defined as
+	  follows:  [Pending IANA consideration]
+	</t>
+
+	<figure><artwork>updates</artwork></figure>
+
+	<t>
+	  The 'type' value of the Link header is defined as follows:
+	</t>
+
+	<figure><artwork>application/json</artwork></figure>
+
+	<t>
+	  The 'href' value of the Link header is produced via
+	  the via the following rules, as defined by the
 	  <xref target="RFC5234">augmented BNF</xref> syntax, the URI
 	  production grammar defined in <xref target="RFC3986"/>, and
 	  the above grammar defining
-	  the <xref target="sup-id">'sup_id'</xref> production.
+	  the <xref target="resource-token">'resource_token'</xref>
+	  production.
 	</t>
-	  
-	<figure><artwork>x_sup_id_header   = "X-SUP-ID" ":" 1*SP updates_uri
-updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
-</artwork></figure>
+
+	<figure>
+	  <artwork>updates_document_uri = 
+    scheme ":" hier-part [ "?" query ] [ "#" resource_token ]</artwork>
+	</figure>
 
 	<t>
-	  For example, the following 'X-SUP-ID' header refers to a SUP
-	  Feed at 'http://example.com/sup.json' and indicates that the
-	  SUP ID of the resource being returned is '4496672d'.
+	  The complete value of the 'Link' header conform with the conventions
+	  formalized in
+	  <xref target="I-D.nottingham-http-link-header"/> according
+	  to the following production rules, as defined by the
+	  <xref target="RFC5234">augmented BNF</xref> syntax, the URI
+	  production grammar defined in <xref target="RFC3986"/> and
+	  the 'updates_document_uri' production as defined above.
 	</t>
 
-	<figure><artwork type="example">X-SUP-ID: http://example.com/sup.json#4496672d</artwork></figure>
-	      
-      </section>
+	<figure><artwork>link_rel_value = "updates"
+link_type = "application/json"
+link_title = "Updates Document"
+link_header = "Link:" 1*SP updates_document_uri *SP ";" 1*LWSP
+    "rel=" DQUOTE link_rel_value DQUOTE ";" 1*LWSP
+    "type=" DQUOTE link_type DQUOTE ";" 1*LWSP
+    "title=" DQUOTE link_title DQUOTE</artwork></figure>
+
+	<t>
+	  For example, the following 'Link' header refers to a Updates 
+	  Document at 'http://example.com/sup.json' and indicates that the
+	  Resource Token of the resource being returned is '4496672d'.
+	</t>
+       
+	<figure><artwork>Link: &lt;http://example.com/sup.json#4496672d&gt;;
+    rel="updates";
+    type="application/json";
+    title="Updates Document"</artwork></figure>
 	
-      <section anchor="sup-link" title="atom:link Element">
+      </section>
+
+      <section anchor="updates-link-element" title="Updates Link Element">
 	<t>
 	  In addition to, or instead of,
-	  the <xref target="x-sup-id">'X-SUP-ID' HTTP header</xref>,
-	  XML-based resources MAY include
-	  the <xref target="RFC4287">Atom Syndication Format</xref>
+	  the <xref target="updates-link-header">Updates Link
+	  Header</xref>, XML-based resources MAY include
+	  an <xref target="RFC4287">Atom Syndication Format</xref>
 	  'atom:link' element to signal both the URI at which
-	  the <xref target="sup-feed">SUP feed</xref> may be polled
-	  and the <xref target="sup-id">SUP ID</xref> of the
-	  underlying content feed.
+	  the <xref target="updates-document">Updates Document</xref> may be
+	  retrieved and the <xref target="resource-token">Resource
+	  Token</xref> associated with the containing document.
 	</t>
 
 	<t>
 	  The 'rel' value of the atom:link element is defined as
-	  follows: [Ed: This should change.  See IANA Considerations
-	  below.]
+	  follows:  [Pending IANA consideration]
 	</t>
 
-	<figure><artwork>http://api.friendfeed.com/2008/03#sup</artwork></figure>
+	<figure><artwork>updates</artwork></figure>
 
 	<t>
 	  The 'type' value of the atom:link element is defined as follows:
@@ -363,54 +393,43 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
 
 	<figure><artwork>application/json</artwork></figure>
 
-	<t>
+	<t>	
 	  The 'href' value of the atom:link element is produced via
 	  the via the following rules, as defined by the
 	  <xref target="RFC5234">augmented BNF</xref> syntax, the URI
 	  production grammar defined in <xref target="RFC3986"/>, and
 	  the above grammar defining
-	  the <xref target="sup-id">'sup_id'</xref> production.
+	  the <xref target="resource-token">'resource_token'</xref> production.
 	</t>
 
-	<figure><artwork>updates_uri = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]</artwork></figure>
+	<figure>
+	  <artwork>updates_document_uri = 
+    scheme ":" hier-part [ "?" query ] [ "#" resource_token ]</artwork>
+	</figure>
 
 	<t>
-	  For example, the following 'atom:link' refers to a SUP feed
-	  at 'http://example.com/sup.json' and indicates that the SUP
-	  ID of the feed itself is '4496672d'.
+	  For example, the following 'atom:link' element refers to a
+	  Updates Document at 'http://example.com/sup.json' and
+	  indicates that the Resource Token of the containing document
+	  is '4496672d'.
 	</t>
 
 	<figure><artwork type="example">&lt;link xmlns="http://www.w3.org/2005/Atom"
-      rel="http://api.friendfeed.com/2008/03#sup"
+      rel="updates"
       type="application/json"
-      title="Updates Feed"
+      title="Updates Document"
       href="http://example.com/sup.json#4496672d"/&gt;</artwork></figure>
 
       </section>
-
-      <section title="HTTP 'Link' header [Ed: proposed]">
-	<t>
-	  [Ed: Perhaps HTTP Link headers, as formalized in
-	  <xref target="I-D.nottingham-http-link-header"/>, could be used
-	  instead of, or in addition to, the one-off X-SUP-ID header.
-	  For example, the following conveys the same information in a
-	  more standardized manner, and is more consistent with the
-	  'atom:link' entry in the feed itself.]
-	</t>
-
-	<figure><artwork>Link: &lt;http://example.com/sup.json#276b6c46&gt;;
-    rel="http://api.friendfeed.com/2008/03#sup";
-    type="application/json";
-    title="Updates Feed"</artwork></figure>
-      </section>      
       
     </section>
 
     <section title="Examples">
 
       <t>
-	A SUP feed indicating that five content feeds were updated in
-	the interval between 1:14:35 and 1:16:45.
+	The following is a sample Updates Document that indicates that
+	five distinct URI-addressable resources were updated in the
+	interval between 1:14:35 and 1:16:45.
       </t>
 	  <figure><artwork type="example">{
   "available_periods": {
@@ -456,9 +475,7 @@ updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
 
     <section title="IANA Considerations" anchor="iana">
       <t>
-	[Ed: Document a proposed permanent link relation value here
-	(instead of "http://api.friendfeed.com/2008/03#sup").  Perhaps
-	"updates"?]
+	[Ed: Draft language to propose "updates" as a IANA recognized link relation value.]
       </t>
     </section>
 
