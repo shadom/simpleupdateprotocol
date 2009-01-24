@@ -4,8 +4,8 @@
 Network Working Group                                        P. Buchheit
 Internet-Draft                                                FriendFeed
 Intended status: Experimental                            D. Clinton, Ed.
-Expires: July 14, 2009                                            Google
-                                                        January 10, 2009
+Expires: July 28, 2009                                            Google
+                                                        January 24, 2009
 
 
                          Simple Update Protocol
@@ -32,7 +32,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on July 14, 2009.
+   This Internet-Draft will expire on July 28, 2009.
 
 Copyright Notice
 
@@ -52,13 +52,13 @@ Abstract
 
 
 
-Buchheit & Clinton        Expires July 14, 2009                 [Page 1]
+Buchheit & Clinton        Expires July 28, 2009                 [Page 1]
 
 Internet-Draft                     SUP                      January 2009
 
 
-   which content feed publishers can signal to feed consumers that
-   certain feeds have been updated.
+   which content publishers can signal to consumers that certain
+   resources have been updated.
 
 Editorial Note
 
@@ -73,19 +73,18 @@ Table of Contents
      1.1.  Notational Conventions . . . . . . . . . . . . . . . . . .  3
      1.2.  Design Considerations  . . . . . . . . . . . . . . . . . .  3
    2.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
-   3.  SUP Feed . . . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   3.  Updates Document . . . . . . . . . . . . . . . . . . . . . . .  3
      3.1.  The 'updates' field  . . . . . . . . . . . . . . . . . . .  4
      3.2.  The 'period' field . . . . . . . . . . . . . . . . . . . .  4
      3.3.  The 'since_time' field . . . . . . . . . . . . . . . . . .  4
      3.4.  The 'updated_time' field . . . . . . . . . . . . . . . . .  4
      3.5.  The 'available_periods' field  . . . . . . . . . . . . . .  5
-   4.  SUP ID . . . . . . . . . . . . . . . . . . . . . . . . . . . .  5
-   5.  Update ID  . . . . . . . . . . . . . . . . . . . . . . . . . .  5
+   4.  Resource Token . . . . . . . . . . . . . . . . . . . . . . . .  5
+   5.  Update Token . . . . . . . . . . . . . . . . . . . . . . . . .  5
    6.  Discovery  . . . . . . . . . . . . . . . . . . . . . . . . . .  6
-     6.1.  'X-SUP-ID' HTTP header . . . . . . . . . . . . . . . . . .  6
-     6.2.  atom:link Element  . . . . . . . . . . . . . . . . . . . .  6
-     6.3.  HTTP 'Link' header [Ed: proposed]  . . . . . . . . . . . .  7
-   7.  Examples . . . . . . . . . . . . . . . . . . . . . . . . . . .  7
+     6.1.  Updates Link Header  . . . . . . . . . . . . . . . . . . .  6
+     6.2.  Updates Link Element . . . . . . . . . . . . . . . . . . .  7
+   7.  Examples . . . . . . . . . . . . . . . . . . . . . . . . . . .  8
    8.  Security Considerations  . . . . . . . . . . . . . . . . . . .  8
    9.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . .  8
    10. References . . . . . . . . . . . . . . . . . . . . . . . . . .  9
@@ -108,19 +107,21 @@ Table of Contents
 
 
 
-Buchheit & Clinton        Expires July 14, 2009                 [Page 2]
+
+Buchheit & Clinton        Expires July 28, 2009                 [Page 2]
 
 Internet-Draft                     SUP                      January 2009
 
 
 1.  Introduction
 
-   SUP (Simple Update Protocol) consists of a notification format that
-   feed publishers can use to alert consumers that one or more content
-   feeds have been recently updated.  The presence of a SUP feed allows
-   for increased efficiency, and decreased latency, by reducing or
-   eliminating the need for consumers to frequently poll each underlying
-   feed individually.
+   SUP (Simple Update Protocol) consists of a notification format called
+   an Updates Document (Section 3) that content publishers can use to
+   alert consumers that one or more resources have been recently
+   changed.  Clients can subsequently poll a single Updates Document
+   rather than each underlying resource individually and thus decrease
+   both the latency in discovering recent changes and the total amount
+   of bandwidth and time consumed.
 
 1.1.  Notational Conventions
 
@@ -130,51 +131,48 @@ Internet-Draft                     SUP                      January 2009
 
 1.2.  Design Considerations
 
-   SUP feeds are designed to be easy for publishers to create,
-   increasing in benefit as the number of underlying feeds grows.
-   Consumers that read a large number of feeds from a given publisher,
-   such as a blog aggregators, hosted feed readers, or intermediary
-   publishers, will similarly benefit most from using the SUP feed to
-   reduce polling rates for individual feeds and query only when updates
-   are available.
+   Updates Documents are designed to be easy for publishers to create,
+   and increase in benefit as the number of underlying resources and the
+   number of consumers grow.  Similarly, consumers that poll for a large
+   number of resources from a given publisher, such as blog aggregators,
+   feed readers, or intermediary publishers, will benefit from polling a
+   publisher's Updates Document before retrieving each underlying
+   resource individually.
 
 
 2.  Overview
 
-   Publishers that produce large numbers of content feeds can aggregate
-   a list of feeds that have changed over a given time period and
-   publish this list as a SUP Feed (Section 3) to consumers.  Each
-   underlying content feed is identified by an opaque token called a SUP
-   ID (Section 4), which consumers can associate with a previously-seen
-   feed URL, which can then be re-queried as necessary.  Publishers use
-   the X-SUP-ID HTTP header (Section 6.1) and the atom:link element
-   (Section 6.2) with each content feed to announce the feed's unique
-   SUP ID and the location of the SUP feed itself.
+   Publishers of URI-addressable resources may associated a semi-unique
+   opaque identifier, called a Resource Token (Section 4), with each
+   underlying resource.  The publisher signals the existence of these
+   Resource Tokens via a discovery mechanism during the retrieval of the
+   resource, either within the resource itself (the Updates Link Element
+   (Section 6.2)) or as meta-data associated with the response (the
+   Updates Link Header (Section 6.1)).  The publisher may then create a
+   URI-addressable Updates Document (Section 3) that informs consumers
+   which resources, as identified by Resource Tokens, have been recently
+   modified.
 
 
-3.  SUP Feed
+3.  Updates Document
 
-   [Ed: Perhaps consider changing the name of this to 'Updates Feed' to
-   reduce redundancy.  Also, "feed" itself might be a misleading term,
-   as each new version tends to overwrite the last completely.  Perhaps
-   "Updates Document" is better?]
-
-   A SUP feed consists of a document of type 'application/json'
-   containing a single top-level JSON Object [RFC4627], mapping a set of
+   An Updates Document consists of a URI-addressable resource of type
+   'application/json' containing a single top-level JSON Object
+   [RFC4627], mapping a set of well-known keys to well-defined values,
+   as defined below.
 
 
 
-Buchheit & Clinton        Expires July 14, 2009                 [Page 3]
+
+Buchheit & Clinton        Expires July 28, 2009                 [Page 3]
 
 Internet-Draft                     SUP                      January 2009
 
 
-   well-known keys to well-defined values, as defined below.
+   Consumers SHOULD ignore any unanticipated keys in the JSON dictionary
+   and SHOULD continue to parse all anticipated keys as specified.
 
-   Consumers SHOULD ignore any unanticipated keys in the JSON document
-   and continue to parse the expected values as intended.
-
-   The overall structure of the SUP feed is as follows:
+   The overall structure of the Updates Document is as follows:
    {
        "updates": [ ... ],
        "period": ...,
@@ -186,10 +184,10 @@ Internet-Draft                     SUP                      January 2009
 3.1.  The 'updates' field
 
    A JSON List [RFC4627] of two-element JSON Lists, each containing the
-   tuple (SUP ID (Section 4), Update ID (Section 5)).
+   tuple (Resource Token (Section 4), Update Token (Section 5)).
 
-   This field is REQUIRED.  It MAY contain an empty list if no content
-   feeds have been updated in the given interval.
+   This field is REQUIRED.  It MAY contain an empty list if no resources
+   have been updated in the given interval.
    "updates": [
        ["14ea1a46", "16NV"],
        ["a2f57d4b", "16Nx"],
@@ -198,8 +196,8 @@ Internet-Draft                     SUP                      January 2009
 
 3.2.  The 'period' field
 
-   A positive integer representing the the duration of time covered by
-   this feed, in seconds.
+   A positive integer representing the the duration of time under
+   consideration in this Updates Document, in seconds.
 
    This field is REQUIRED.
    "period": 60
@@ -207,7 +205,7 @@ Internet-Draft                     SUP                      January 2009
 3.3.  The 'since_time' field
 
    An [RFC3339] formatted string representing the start time of the
-   interval covered by this feed.
+   interval covered by this Updates Document.
 
    This field is REQUIRED.
    "since_time": "2009-01-06T00:48:38Z"
@@ -215,18 +213,17 @@ Internet-Draft                     SUP                      January 2009
 3.4.  The 'updated_time' field
 
    An [RFC3339] formatted string representing the end time of the
-   interval covered by this feed.
-
-
-
-
-Buchheit & Clinton        Expires July 14, 2009                 [Page 4]
-
-Internet-Draft                     SUP                      January 2009
-
+   interval covered by this Updates Document.
 
    This field is REQUIRED.
    "updated_time": "2009-01-06T00:50:48Z"
+
+
+
+Buchheit & Clinton        Expires July 28, 2009                 [Page 4]
+
+Internet-Draft                     SUP                      January 2009
+
 
    The delta in seconds between the 'start_time' and the 'updated_time'
    fields MUST be equal to or greater than the duration indicated by the
@@ -235,7 +232,8 @@ Internet-Draft                     SUP                      January 2009
 3.5.  The 'available_periods' field
 
    A JSON Object mapping time periods (in seconds) to URLs where an
-   additional SUP feed of the corresponding duration may be found.
+   additional Updates Documents of the corresponding duration may be
+   found.
 
    This field is OPTIONAL.
    "available_periods": {
@@ -245,104 +243,129 @@ Internet-Draft                     SUP                      January 2009
    }
 
 
-4.  SUP ID
+4.  Resource Token
 
-   [Ed: Perhaps consider changing this to 'Resource Id' to reduce
-   redundancy.  And more generally, consider calling the underlying
-   documents "resources" rather than "feeds", as the SUP technique isn't
-   specific to only Atom or RSS content.]
-
-   A SUP ID is a short opaque string used to identify a individual
-   content feed.  A single feed MUST always map to a single, stable SUP
-   ID, but different feeds MAY occasionally share the same SUP ID.
+   A Resource Token is a short opaque string used to identify a
+   individual URI-addressable resource.  Each unique underlying resource
+   MUST always map to a single, stable Resource Token, but different
+   resources MAY occasionally share the same Resource Token.
 
    Consumers SHOULD NOT attempt to parse or interpret the contents of
-   the string, but instead should maintain their own mapping of SUP IDs
-   to resource URIs.  The mapping of SUP ID to resource URI is
-   established via the Discovery (Section 6) mechanisms defined below.
+   the Resource Token.  Clients SHOULD maintain a mapping of Resource
+   Tokens to resource URIs is established via the Discovery (Section 6)
+   mechanisms defined below.
 
-   A valid SUP ID is a non-empty string of no more than 128 characters
-   composed of ASCII letters, numbers, or hyphens (regex [a-zA-Z0-9-]),
-   and are produced via the following rules, as defined by the augmented
-   BNF [RFC5234] syntax.
-   sup_id = 1*128(CHAR / DIGIT / "-")
-
-
-5.  Update ID
-
-   [Ed: Consider changing the name of this to "Revision Id".]
-
-   The Update ID is a short opaque string used to disambiguate distinct
+   A valid Resource Token is a non-empty string of no more than 128
+   characters composed of ASCII letters, numbers, or hyphens (regex
+   [a-zA-Z0-9\-]), and are produced via the following rules, as defined
+   by the augmented BNF [RFC5234] syntax.
+   resource_token = 1*128(CHAR / DIGIT / "-")
 
 
+5.  Update Token
 
-Buchheit & Clinton        Expires July 14, 2009                 [Page 5]
+   The Update Token is a short opaque string used to disambiguate
+   distinct updates to a URI-addressable resource.  In practice, the
+   last update timestamp of the resource or its ETag is a suitable
+   identifier, but clients SHOULD NOT attempt to parse or interpret the
+   contents of the string.
+
+   A valid Update Token is a non-empty string of no more than 128
+   characters composed of ASCII letters, numbers, or hyphens (regex
+   [a-zA-Z0-9\-]), and are produced via the following rules, as defined
+
+
+
+Buchheit & Clinton        Expires July 28, 2009                 [Page 5]
 
 Internet-Draft                     SUP                      January 2009
 
 
-   updates to a content feed.  In practice, the last update timestamp of
-   the content feed is a suitable identifier, but clients SHOULD NOT
-   attempt to parse or intepret the contents of the string.
-
-   A valid Update ID is a non-empty string of no more than 128
-   characters composed of ASCII letters, numbers, or hyphens (regex
-   [a-zA-Z0-9-]), and are produced via the following rules, as defined
    by the augmented BNF [RFC5234] syntax.
-   update_id = 1*128(CHAR / DIGIT / "-")
+   update_token = 1*128(CHAR / DIGIT / "-")
 
 
 6.  Discovery
 
-   This section discusses how a publisher signals the existence of SUP
-   feed.
+   This section discusses how a publisher signals the existence of an
+   Updates Document and how the publisher establishes the relationship
+   between the semi-unique Resource Token and an underlying URI-
+   addressable resource.
 
-   Feeds SHOULD announce the availabilty of by setting the 'X-SUP-ID'
-   HTTP header (Section 6.1), and/or by including a 'atom:link' element
-   (Section 6.2), or both.
+   Publishers SHOULD announce the availability of an Updates Document
+   and associate the underlying resource with a corresponding Resource
+   Token via the Updates Link Header (Section 6.1).  If the underlying
+   resource is an XML-based document, the publisher may additionally
+   include a Updates Link Element (Section 6.2) within the document
+   itself.
 
-   Use of the 'X-SUP-ID' HTTP header is RECOMMENDED since it works for
-   feed types, but feed consumers SHOULD be prepared for the presence of
-   the link element in addition to, or instead of, the X-SUP-ID header.
+   Use of the Updates Link Header is RECOMMENDED as it is applicable to
+   all resources published over HTTP, but consumers SHOULD be prepared
+   for the presence of the Updates Link Element in addition to, or
+   instead of, the Updates Link Header, when the underlying resource is
+   a XML-based document.
 
-6.1.  'X-SUP-ID' HTTP header
+6.1.  Updates Link Header
 
-   Responses to HTTP [RFC2616] requests for content feeds SHOULD include
-   a HTTP Response Header [RFC2616] of 'X-SUP-ID' to signal both the URI
-   at which the SUP feed (Section 3) may be polled and the SUP ID
-   (Section 4) of the underlying content feed.
+   Responses to HTTP [RFC2616] requests for resources SHOULD include a
+   HTTP Response Header [RFC2616] of 'Link' to signal both the URI at
+   which the Updates Document (Section 3) may be polled and the semi-
+   unique Resource Token (Section 4) of the resource being retrieved.
 
-   Valid 'X-SUP-ID' headers are produced via the following rules, as
-   defined by the augmented BNF [RFC5234] syntax, the URI production
-   grammar defined in [RFC3986], and the above grammar defining the
-   'sup_id' (Section 4) production.
-   x_sup_id_header   = "X-SUP-ID" ":" 1*SP updates_uri
-   updates_uri       = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
+   The 'rel' value of the Link header is defined as follows: [Pending
+   IANA consideration]
+   updates
 
-   For example, the following 'X-SUP-ID' header refers to a SUP Feed at
-   'http://example.com/sup.json' and indicates that the SUP ID of the
-   resource being returned is '4496672d'.
-   X-SUP-ID: http://example.com/sup.json#4496672d
+   The 'type' value of the Link header is defined as follows:
+   application/json
 
-6.2.  atom:link Element
+   The 'href' value of the Link header is produced via the via the
+   following rules, as defined by the augmented BNF [RFC5234] syntax,
+   the URI production grammar defined in [RFC3986], and the above
+   grammar defining the 'resource_token' (Section 4) production.
+   updates_document_uri =
+       scheme ":" hier-part [ "?" query ] [ "#" resource_token ]
 
-   In addition to, or instead of, the 'X-SUP-ID' HTTP header
-   (Section 6.1), XML-based resources MAY include the Atom Syndication
-   Format [RFC4287] 'atom:link' element to signal both the URI at which
+   The complete value of the 'Link' header conform with the conventions
+   formalized in [I-D.nottingham-http-link-header] according to the
+   following production rules, as defined by the augmented BNF [RFC5234]
 
 
 
-Buchheit & Clinton        Expires July 14, 2009                 [Page 6]
+Buchheit & Clinton        Expires July 28, 2009                 [Page 6]
 
 Internet-Draft                     SUP                      January 2009
 
 
-   the SUP feed (Section 3) may be polled and the SUP ID (Section 4) of
-   the underlying content feed.
+   syntax, the URI production grammar defined in [RFC3986] and the
+   'updates_document_uri' production as defined above.
+   link_rel_value = "updates"
+   link_type = "application/json"
+   link_title = "Updates Document"
+   link_header = "Link:" 1*SP updates_document_uri *SP ";" 1*LWSP
+       "rel=" DQUOTE link_rel_value DQUOTE ";" 1*LWSP
+       "type=" DQUOTE link_type DQUOTE ";" 1*LWSP
+       "title=" DQUOTE link_title DQUOTE
 
-   The 'rel' value of the atom:link element is defined as follows: [Ed:
-   This should change.  See IANA Considerations below.]
-   http://api.friendfeed.com/2008/03#sup
+   For example, the following 'Link' header refers to a Updates Document
+   at 'http://example.com/sup.json' and indicates that the Resource
+   Token of the resource being returned is '4496672d'.
+   Link: <http://example.com/sup.json#4496672d>;
+       rel="updates";
+       type="application/json";
+       title="Updates Document"
+
+6.2.  Updates Link Element
+
+   In addition to, or instead of, the Updates Link Header (Section 6.1),
+   XML-based resources MAY include an Atom Syndication Format [RFC4287]
+   'atom:link' element to signal both the URI at which the Updates
+   Document (Section 3) may be retrieved and the Resource Token
+   (Section 4) associated with the containing document.
+
+   The 'rel' value of the atom:link element is defined as follows:
+   [Pending IANA consideration]
+   updates
 
    The 'type' value of the atom:link element is defined as follows:
    application/json
@@ -350,49 +373,31 @@ Internet-Draft                     SUP                      January 2009
    The 'href' value of the atom:link element is produced via the via the
    following rules, as defined by the augmented BNF [RFC5234] syntax,
    the URI production grammar defined in [RFC3986], and the above
-   grammar defining the 'sup_id' (Section 4) production.
-   updates_uri = scheme ":" hier-part [ "?" query ] [ "#" sup_id ]
+   grammar defining the 'resource_token' (Section 4) production.
+   updates_document_uri =
+       scheme ":" hier-part [ "?" query ] [ "#" resource_token ]
 
-   For example, the following 'atom:link' refers to a SUP feed at
-   'http://example.com/sup.json' and indicates that the SUP ID of the
-   feed itself is '4496672d'.
+   For example, the following 'atom:link' element refers to a Updates
+   Document at 'http://example.com/sup.json' and indicates that the
+   Resource Token of the containing document is '4496672d'.
    <link xmlns="http://www.w3.org/2005/Atom"
-         rel="http://api.friendfeed.com/2008/03#sup"
+         rel="updates"
          type="application/json"
-         title="Updates Feed"
+         title="Updates Document"
          href="http://example.com/sup.json#4496672d"/>
 
-6.3.  HTTP 'Link' header [Ed: proposed]
-
-   [Ed: Perhaps HTTP Link headers, as formalized in
-   [I-D.nottingham-http-link-header], could be used instead of, or in
-   addition to, the one-off X-SUP-ID header.  For example, the following
-   conveys the same information in a more standardized manner, and is
-   more consistent with the 'atom:link' entry in the feed itself.]
-   Link: <http://example.com/sup.json#276b6c46>;
-       rel="http://api.friendfeed.com/2008/03#sup";
-       type="application/json";
-       title="Updates Feed"
 
 
-7.  Examples
-
-   A SUP feed indicating that five content feeds were updated in the
-   interval between 1:14:35 and 1:16:45.
-
-
-
-
-
-
-
-
-
-Buchheit & Clinton        Expires July 14, 2009                 [Page 7]
+Buchheit & Clinton        Expires July 28, 2009                 [Page 7]
 
 Internet-Draft                     SUP                      January 2009
 
 
+7.  Examples
+
+   The following is a sample Updates Document that indicates that five
+   distinct URI-addressable resources were updated in the interval
+   between 1:14:35 and 1:16:45.
    {
      "available_periods": {
        "60": "http://example.com/sup.json?seconds=60",
@@ -435,19 +440,19 @@ Internet-Draft                     SUP                      January 2009
 
 9.  IANA Considerations
 
-   [Ed: Document a proposed permanent link relation value here (instead
-   of "http://api.friendfeed.com/2008/03#sup").  Perhaps "updates"?]
-
-
-10.  References
+   [Ed: Draft language to propose "updates" as a IANA recognized link
 
 
 
-
-Buchheit & Clinton        Expires July 14, 2009                 [Page 8]
+Buchheit & Clinton        Expires July 28, 2009                 [Page 8]
 
 Internet-Draft                     SUP                      January 2009
 
+
+   relation value.]
+
+
+10.  References
 
 10.1.  Normative References
 
@@ -492,17 +497,16 @@ Appendix A.  Acknowledgements
    edit this section].
 
    The editor would like to thank Adewale Oshineye for publishing an
-   earlier interpretation of the SUP specification that helped form the
-   basis for this document.
 
 
 
-
-
-
-Buchheit & Clinton        Expires July 14, 2009                 [Page 9]
+Buchheit & Clinton        Expires July 28, 2009                 [Page 9]
 
 Internet-Draft                     SUP                      January 2009
+
+
+   earlier interpretation of the SUP specification that helped form the
+   basis for this document.
 
 
 Authors' Addresses
@@ -552,9 +556,5 @@ Authors' Addresses
 
 
 
-
-
-
-
-Buchheit & Clinton        Expires July 14, 2009                [Page 10]
+Buchheit & Clinton        Expires July 28, 2009                [Page 10]
 
