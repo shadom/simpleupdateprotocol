@@ -4,8 +4,8 @@
 Network Working Group                                        P. Buchheit
 Internet-Draft                                                FriendFeed
 Intended status: Experimental                            D. Clinton, Ed.
-Expires: July 28, 2009                                            Google
-                                                        January 24, 2009
+Expires: July 5, 2009                                             Google
+                                                            January 2009
 
 
                          Simple Update Protocol
@@ -32,7 +32,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on July 28, 2009.
+   This Internet-Draft will expire on July 5, 2009.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Abstract
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 1]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 1]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -86,11 +86,11 @@ Table of Contents
      6.2.  Updates Link Element . . . . . . . . . . . . . . . . . . .  7
    7.  Examples . . . . . . . . . . . . . . . . . . . . . . . . . . .  8
    8.  Security Considerations  . . . . . . . . . . . . . . . . . . .  8
-   9.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . .  8
+   9.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . .  9
    10. References . . . . . . . . . . . . . . . . . . . . . . . . . .  9
      10.1. Normative References . . . . . . . . . . . . . . . . . . .  9
      10.2. Informative References . . . . . . . . . . . . . . . . . .  9
-   Appendix A.  Acknowledgements  . . . . . . . . . . . . . . . . . .  9
+   Appendix A.  Acknowledgements  . . . . . . . . . . . . . . . . . . 10
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 10
 
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 2]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 2]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -164,7 +164,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 3]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 3]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -220,7 +220,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 4]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 4]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -276,7 +276,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 5]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 5]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -332,7 +332,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 6]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 6]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -388,7 +388,7 @@ Internet-Draft                     SUP                      January 2009
 
 
 
-Buchheit & Clinton        Expires July 28, 2009                 [Page 7]
+Buchheit & Clinton        Expires July 5, 2009                  [Page 7]
 
 Internet-Draft                     SUP                      January 2009
 
@@ -434,21 +434,32 @@ Internet-Draft                     SUP                      January 2009
 
 8.  Security Considerations
 
-   [Ed: Address any known security concerns here, with an emphasis on
-   documenting real risks to either publishers or consumers.]
+   SUP does not require that a site MUST encrypt its resource tokens.
+   The resource tokens may be rendered opaque through strong encryption,
+   hashing, or they may be non-opaque.  In a scenario where a SUP
+   document is being used to indicate that private or password protected
+   resources have been updated and the resource tokens are
+   insufficiently opaque (e.g. the urls of the resources are used as
+   resource tokens or the resource tokens are rendered opaque with an
+
+
+
+Buchheit & Clinton        Expires July 5, 2009                  [Page 8]
+
+Internet-Draft                     SUP                      January 2009
+
+
+   algorithm that can be reversed in order to identify the underlying
+   resource) then an attacker can build up a detailed profile of when
+   these documents were updated.  This profile can then be correlated
+   with other data sources in order to compromise the security of the
+   private or password resources.  This is one way adoption of SUP can
+   potentially weaken a site's security.
 
 
 9.  IANA Considerations
 
    [Ed: Draft language to propose "updates" as a IANA recognized link
-
-
-
-Buchheit & Clinton        Expires July 28, 2009                 [Page 8]
-
-Internet-Draft                     SUP                      January 2009
-
-
    relation value.]
 
 
@@ -486,6 +497,14 @@ Internet-Draft                     SUP                      January 2009
               draft-nottingham-http-link-header-03 (work in progress),
               November 2008.
 
+
+
+
+Buchheit & Clinton        Expires July 5, 2009                  [Page 9]
+
+Internet-Draft                     SUP                      January 2009
+
+
 URIs
 
    [1]  <http://friendfeed.com/rooms/simple-update-protocol>
@@ -497,14 +516,6 @@ Appendix A.  Acknowledgements
    edit this section].
 
    The editor would like to thank Adewale Oshineye for publishing an
-
-
-
-Buchheit & Clinton        Expires July 28, 2009                 [Page 9]
-
-Internet-Draft                     SUP                      January 2009
-
-
    earlier interpretation of the SUP specification that helped form the
    basis for this document.
 
@@ -545,16 +556,5 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Buchheit & Clinton        Expires July 28, 2009                [Page 10]
+Buchheit & Clinton        Expires July 5, 2009                 [Page 10]
 

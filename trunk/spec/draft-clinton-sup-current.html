@@ -144,8 +144,8 @@
 <tr><td class="header">Network Working Group</td><td class="header">P. Buchheit</td></tr>
 <tr><td class="header">Internet-Draft</td><td class="header">FriendFeed</td></tr>
 <tr><td class="header">Intended status: Experimental</td><td class="header">D. Clinton, Ed.</td></tr>
-<tr><td class="header">Expires: July 28, 2009</td><td class="header">Google</td></tr>
-<tr><td class="header">&nbsp;</td><td class="header">January 24, 2009</td></tr>
+<tr><td class="header">Expires: July 5, 2009</td><td class="header">Google</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">January 2009</td></tr>
 </table></td></tr></table>
 <h1><br />Simple Update Protocol<br />draft-clinton-sup-current</h1>
 
@@ -170,7 +170,7 @@ The list of current Internet-Drafts can be accessed at
 The list of Internet-Draft Shadow Directories can be accessed at
 <a href='http://www.ietf.org/shadow.html'>http://www.ietf.org/shadow.html</a>.</p>
 <p>
-This Internet-Draft will expire on July 28, 2009.</p>
+This Internet-Draft will expire on July 5, 2009.</p>
 
 <h3>Copyright Notice</h3>
 <p>
@@ -672,9 +672,20 @@ Examples</h3>
 Security Considerations</h3>
 
 <p>
-	[Ed: Address any known security concerns here, with an
-	emphasis on documenting real risks to either publishers or
-	consumers.]
+        SUP does not require that a site MUST encrypt its resource
+        tokens. The resource tokens may be rendered opaque through
+        strong encryption, hashing, or they may be non-opaque. In a
+        scenario where a SUP document is being used to indicate that
+        private or password protected resources have been updated and
+        the resource tokens are insufficiently opaque (e.g. the urls
+        of the resources are used as resource tokens or the resource
+        tokens are rendered opaque with an algorithm that can be
+        reversed in order to identify the underlying resource) then an
+        attacker can build up a detailed profile of when these
+        documents were updated. This profile can then be correlated
+        with other data sources in order to compromise the security of
+        the private or password resources. This is one way adoption of
+        SUP can potentially weaken a site's security.
       
 </p>
 <a name="iana"></a><br /><hr />
