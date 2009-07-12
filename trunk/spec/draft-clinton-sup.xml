@@ -479,8 +479,8 @@ link_header = "Link:" 1*SP updates_document_uri *SP ";" 1*LWSP
         attacker can build up a detailed profile of when these
         documents were updated. This profile can then be correlated
         with other data sources in order to compromise the security of
-        the private or password resources. This is one way adoption of
-        SUP can potentially weaken a site's security.
+        the private or password protected resources. This is one way
+        adoption of SUP can potentially weaken a site's security.
       </t>
     </section>
 

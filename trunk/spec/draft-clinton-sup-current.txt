@@ -453,8 +453,8 @@ Internet-Draft                     SUP                      January 2009
    resource) then an attacker can build up a detailed profile of when
    these documents were updated.  This profile can then be correlated
    with other data sources in order to compromise the security of the
-   private or password resources.  This is one way adoption of SUP can
-   potentially weaken a site's security.
+   private or password protected resources.  This is one way adoption of
+   SUP can potentially weaken a site's security.
 
 
 9.  IANA Considerations
